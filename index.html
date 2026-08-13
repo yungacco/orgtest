@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="it" data-theme="light" data-accent="verde">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5"
+    />
+    <meta name="description" content="Benessere: peso, ricette, task e diario in un'unica app personale." />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Benessere" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <title>Benessere</title>
+    <script>
+      // Applica il tema salvato prima del primo render, per evitare il "lampo"
+      // di sfondo bianco quando l'utente usa il tema scuro.
+      ;(function () {
+        try {
+          var raw = localStorage.getItem('benessere:aspetto')
+          var pref = raw ? JSON.parse(raw) : {}
+          var theme = pref.theme || 'system'
+          var accent = pref.accent || 'verde'
+          var dark =
+            theme === 'dark' ||
+            (theme === 'system' &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+          document.documentElement.dataset.accent = accent
+        } catch (e) {
+          /* le preferenze verranno applicate da React */
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
