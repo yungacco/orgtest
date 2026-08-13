@@ -278,13 +278,17 @@ export function AllenamentiPage() {
                   <Chip
                     key={nome}
                     attivo={filtro === nome}
-                    className="shrink-0"
+                    titolo={nome}
+                    // un'attivita' scritta a mano puo' essere lunghissima:
+                    // il chip si ferma e il nome per intero resta nel titolo
+                    className="max-w-[60vw] shrink-0 sm:max-w-xs"
                     onClick={() => {
                       setFiltro(filtro === nome ? null : nome)
                       setQuanteMostrarne(PASSO_ELENCO)
                     }}
                   >
-                    <span aria-hidden>{emojiAttivita(nome)}</span> {nome}
+                    <span aria-hidden>{emojiAttivita(nome)}</span>{' '}
+                    <span className="truncate">{nome}</span>
                   </Chip>
                 ))}
               </div>
