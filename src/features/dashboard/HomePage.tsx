@@ -78,7 +78,10 @@ function Riquadro({
   compatto?: boolean
 }) {
   return (
-    <section className={cn('card flex flex-col p-3.5 sm:p-4', className)}>
+    /* min-w-0: le celle di una griglia, se non glielo si dice, si allargano
+       fino a contenere il testo piu' lungo che hanno dentro — e a quel punto
+       e' il nome di una ricetta a decidere la larghezza della pagina */
+    <section className={cn('card flex min-w-0 flex-col p-3.5 sm:p-4', className)}>
       <header
         className={cn(
           'flex items-center',
@@ -192,7 +195,7 @@ export function HomePage() {
         {/* Peso e allenamenti sono due numeri soli: sul telefono stanno
             affiancati, cosi' la prima schermata mostra qualcosa in piu'.
             Da tablet in su tornano riquadri normali della griglia. */}
-        <div className="grid grid-cols-2 gap-3 md:contents">
+        <div className="grid min-w-0 grid-cols-2 gap-3 md:contents">
           {/* ----------------------------- peso ----------------------------- */}
           <Riquadro
             compatto
@@ -331,7 +334,10 @@ export function HomePage() {
                         {voce.recipe ? (
                           <Link
                             to={`/ricette/${voce.recipe.id}`}
-                            className="min-w-0 flex-1 truncate text-ink hover:text-accent-600 dark:hover:text-accent-300"
+                            /* i nomi lunghi vanno a capo (al massimo due righe):
+                               con il testo su una riga sola erano loro a
+                               decidere la larghezza della pagina */
+                            className="line-clamp-2 min-w-0 flex-1 break-words text-ink hover:text-accent-600 dark:hover:text-accent-300"
                           >
                             {voce.recipe.title}
                           </Link>
