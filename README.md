@@ -1,8 +1,8 @@
 # Benessere
 
-App personale di benessere e organizzazione: **peso**, **ricette e menù**,
-**task** e **diario**, in italiano, che funziona sul telefono come
-un'applicazione vera e sul computer come un sito.
+App personale di benessere e organizzazione: **peso**, **allenamenti**,
+**ricette e menù**, **task** e **diario**, in italiano, che funziona sul
+telefono come un'applicazione vera e sul computer come un sito.
 
 I dati sono tuoi e stanno in un database che crei tu (gratuito): nessun altro
 può leggerli, nemmeno chi conosce l'indirizzo del sito.
@@ -39,6 +39,16 @@ può leggerli, nemmeno chi conosce l'indirizzo del sito.
 - peso attuale, variazione su settimana e mese, minimo e massimo, indice di massa corporea
 - obiettivo di peso come linea tratteggiata, con i chili che mancano e la
   stima di quando lo raggiungerai al ritmo attuale
+
+**Allenamenti**
+- registri che cosa hai fatto (corsa, palestra, bici, nuoto… o quello che
+  scrivi tu), per quanti minuti e con che intensità
+- chilometri e calorie se ti servono, più uno spazio libero per gli appunti
+  ("panca, trazioni, squat — 4 serie da 8")
+- minuti di questa settimana, confronto con la settimana scorsa, totale degli
+  ultimi 30 giorni e giorni consecutivi di attività
+- grafico dei minuti per settimana e storico raggruppato per mese, con il
+  filtro per tipo di attività
 
 **Ricette e menù**
 - ricettario con foto, categoria, tag, tempo, difficoltà, ingredienti,
@@ -121,6 +131,12 @@ Non serve installare niente sul computer: si fa tutto dal browser.
 Questo comando crea tutte le tabelle, gli indici, le regole di sicurezza e lo
 spazio dove finiranno le foto delle ricette. Puoi rieseguirlo quante volte
 vuoi: non cancella niente di quello che hai già inserito.
+
+> **Stai aggiornando un'app che usi già?** Rifai comunque questo passo: il
+> file crea solo quello che manca (per esempio la tabella degli
+> **allenamenti**, aggiunta dopo) e non tocca i dati che hai già inserito.
+> Senza questo passaggio la sezione Allenamenti dà errore quando provi a
+> salvare.
 
 > **Che cosa sono le "regole di sicurezza"?** Si chiamano *Row Level
 > Security*. Dicono al database: «ogni utente può leggere e scrivere solo le
@@ -255,12 +271,15 @@ senza connessione, mostra comunque gli ultimi dati che aveva sincronizzato.
 
 ## Come si usa
 
-- Sul **telefono** hai la barra in basso con Home, Peso, Ricette, Task e
+- Sul **telefono** hai la barra in basso con Home, Salute, Cibo, Task e
   Diario; le impostazioni sono nell'ingranaggio in alto a destra. Il pulsante
   verde **+** in basso inserisce al volo la cosa più utile della pagina in cui
-  ti trovi (e dalla Home apre un menu con le quattro azioni rapide).
-- Sul **computer** hai la barra laterale fissa con anche *Piano pasti*,
-  *Lista della spesa* e *Archivio task*, e le pagine usano più colonne.
+  ti trovi (e dalla Home apre un menu con le azioni rapide).
+- Dentro ogni sezione, subito sotto al titolo, ci sono le **schede** con le
+  pagine di quella sezione: *Peso · Allenamenti* dentro Salute,
+  *Ricettario · Piano · Spesa* dentro Cibo, *Attive · Archivio* dentro Task.
+- Sul **computer** la barra laterale elenca tutte le pagine raggruppate per
+  argomento (Salute, Cibo, Organizzazione) e le pagine usano più colonne.
 - Nelle liste (misurazioni del peso, archivio) puoi **trascinare una riga
   verso sinistra** per far comparire i pulsanti Modifica ed Elimina.
 - Le task attive si riordinano trascinando la maniglia a sinistra.
@@ -437,6 +456,7 @@ Altri comandi utili:
 | `npm run preview` | mostra il risultato di `build` in locale |
 | `npm run typecheck` | controlla i tipi TypeScript |
 | `npm run lint` | controlla lo stile del codice |
+| `npm test` | esegue i test automatici sulla logica di calcolo |
 | `node scripts/generate-icons.mjs` | rigenera le icone della PWA |
 
 ### Com'è organizzato
@@ -450,6 +470,7 @@ src/
 │   ├── auth/            accesso, registrazione, recupero password
 │   ├── dashboard/       la home con il riepilogo
 │   ├── weight/          peso, grafico, statistiche
+│   ├── workouts/        allenamenti, statistiche e grafico settimanale
 │   ├── recipes/         ricettario e foto
 │   ├── mealplan/        generatore di menù e calendario settimanale
 │   ├── shopping/        lista della spesa
@@ -466,9 +487,20 @@ Dentro ogni funzionalità:
 
 - `api.ts` — le sole funzioni che parlano con il database
 - `hooks.ts` — la cache e gli aggiornamenti ottimistici (React Query)
+- `statistiche.ts`, `aggrega.ts`, `generatore.ts`… — i conti veri e propri,
+  scritti come funzioni pure e coperti dai test
 - i file `.tsx` — i componenti, che non conoscono Supabase
 
 Così cambiare il modo di salvare i dati non tocca l'interfaccia, e viceversa.
+
+### I test
+
+`npm test` esegue 58 test (Vitest) sulla parte che sbaglierebbe in silenzio:
+medie e tendenza del peso, somme della lista della spesa, serie delle
+abitudini, ricorrenze delle task, generatore del menù e statistiche degli
+allenamenti. Sono funzioni pure, quindi girano in pochi secondi senza browser
+né database — e la pubblicazione su GitHub li esegue prima di compilare: se un
+test fallisce, il sito non viene aggiornato con il codice rotto.
 
 ### Tecnologie
 
@@ -483,12 +515,13 @@ Supabase (Auth, Postgres, Storage) · vite-plugin-pwa · GitHub Actions
 Dove la richiesta lasciava spazio a interpretazioni, ho scelto l'opzione più
 semplice da usare. Le annoto qui:
 
-1. **Barra in basso a cinque voci.** Le sezioni principali sono Home, Peso,
-   Ricette, Task e Diario. Le Impostazioni sono nell'ingranaggio in alto (e
-   nella barra laterale su computer): sei voci in fondo sarebbero state
-   troppo strette per un dito su uno schermo da 375 px. *Piano pasti*, *Lista
-   della spesa* e *Archivio* sono raggiungibili dalla Home, dalla barra
-   laterale e dai pulsanti delle rispettive sezioni.
+1. **Cinque voci in basso, le schede dentro la sezione.** In fondo allo
+   schermo ci sono Home, Salute, Cibo, Task e Diario: più di cinque voci
+   diventano troppo strette per un dito su uno schermo da 375 px. Le pagine
+   di ciascuna sezione (Peso e Allenamenti; Ricettario, Piano e Spesa;
+   Attive e Archivio) stanno nelle schede sotto al titolo, dove le cerchi
+   mentre sei già lì. Le Impostazioni sono nell'ingranaggio in alto. Sul
+   computer la barra laterale le elenca comunque tutte.
 2. **Pesi sempre in chilogrammi, altezze in centimetri.** Le libbre e i
    pollici sono solo un modo di *mostrare* i dati: cambiando unità non si
    riscrive niente nel database e i valori storici restano corretti.
