@@ -1,0 +1,207 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Token dei colori
+   - i colori "semantici" (sfondo, testo, bordi) cambiano con il tema
+   - il colore d'accento cambia con data-accent (vedi Impostazioni)
+   ========================================================================== */
+@layer base {
+  :root {
+    --c-bg: 247 248 250;
+    --c-card: 255 255 255;
+    --c-elev: 241 244 248;
+    --c-line: 226 232 240;
+    --c-ink: 15 23 42;
+    --c-ink-2: 71 85 105;
+    --c-ink-3: 119 134 154;
+    --c-danger: 220 38 38;
+    --c-success: 22 163 74;
+    --c-warn: 217 119 6;
+  }
+
+  [data-theme='dark'] {
+    --c-bg: 11 15 25;
+    --c-card: 22 28 41;
+    --c-elev: 32 40 56;
+    --c-line: 45 55 75;
+    --c-ink: 237 242 249;
+    --c-ink-2: 173 185 202;
+    --c-ink-3: 133 146 166;
+    --c-danger: 248 113 113;
+    --c-success: 74 222 128;
+    --c-warn: 251 191 36;
+  }
+
+  /* --- palette d'accento ------------------------------------------------ */
+  [data-accent='verde'] {
+    --a-200: 167 243 208;
+    --a-300: 110 231 183;
+    --a-400: 52 211 153;
+    --a-500: 16 185 129;
+    --a-600: 5 150 105;
+    --a-700: 4 120 87;
+  }
+  [data-accent='indaco'] {
+    --a-200: 199 210 254;
+    --a-300: 165 180 252;
+    --a-400: 129 140 248;
+    --a-500: 99 102 241;
+    --a-600: 79 70 229;
+    --a-700: 67 56 202;
+  }
+  [data-accent='ciano'] {
+    --a-200: 165 243 252;
+    --a-300: 103 232 249;
+    --a-400: 34 211 238;
+    --a-500: 6 182 212;
+    --a-600: 8 145 178;
+    --a-700: 14 116 144;
+  }
+  [data-accent='rosa'] {
+    --a-200: 251 207 232;
+    --a-300: 249 168 212;
+    --a-400: 244 114 182;
+    --a-500: 236 72 153;
+    --a-600: 219 39 119;
+    --a-700: 190 24 93;
+  }
+  [data-accent='ambra'] {
+    --a-200: 253 230 138;
+    --a-300: 252 211 77;
+    --a-400: 251 191 36;
+    --a-500: 245 158 11;
+    --a-600: 217 119 6;
+    --a-700: 180 83 9;
+  }
+  [data-accent='viola'] {
+    --a-200: 233 213 255;
+    --a-300: 216 180 254;
+    --a-400: 192 132 252;
+    --a-500: 168 85 247;
+    --a-600: 147 51 234;
+    --a-700: 126 34 206;
+  }
+
+  /* In tema scuro l'accento pieno usa tinte piu' chiare, cosi' i pulsanti
+     restano leggibili sul fondo scuro e l'hover schiarisce invece di scurire. */
+  [data-theme='dark'] {
+    --a-600: var(--a-500);
+    --a-700: var(--a-400);
+  }
+
+  * {
+    @apply border-line;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-bg text-ink font-sans antialiased;
+    overscroll-behavior-y: none;
+  }
+
+  /* Focus visibile e coerente su tutta l'app (accessibilita') */
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent-500 ring-offset-2 ring-offset-bg;
+  }
+
+  ::selection {
+    @apply bg-accent-500/25;
+  }
+
+  /* Scrollbar discreta su desktop */
+  @media (pointer: fine) {
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      @apply rounded-full bg-ink-3/30;
+      border: 3px solid transparent;
+      background-clip: content-box;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      @apply bg-ink-3/50;
+      background-clip: content-box;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  }
+
+  /* Rispetta chi ha chiesto meno animazioni */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px; /* evita lo zoom automatico su iOS */
+  }
+  @screen sm {
+    input,
+    textarea,
+    select {
+      font-size: inherit;
+    }
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-line bg-card shadow-soft;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-lg bg-elev;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full;
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      rgb(var(--c-ink) / 0.06),
+      transparent
+    );
+    animation: shimmer 1.6s infinite;
+  }
+
+  /* Area minima toccabile 44px come da linee guida mobile */
+  .tap {
+    @apply min-h-[44px] min-w-[44px];
+  }
+}
+
+@layer utilities {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  /* numeri incolonnati nelle tabelle/statistiche */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
