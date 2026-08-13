@@ -5,6 +5,7 @@ import {
   BookOpen,
   Check,
   ChevronRight,
+  Dumbbell,
   Flame,
   ListTodo,
   Scale,
@@ -25,6 +26,12 @@ import { formatDeltaPeso, formatPeso } from '@/lib/units'
 import { useProfilo } from '@/features/settings/hooks'
 import { usePesi } from '@/features/weight/hooks'
 import { calcolaStatistiche } from '@/features/weight/statistiche'
+import { useAllenamenti } from '@/features/workouts/hooks'
+import {
+  calcolaStatistiche as calcolaStatisticheAllenamenti,
+  emojiAttivita,
+  formatDurata,
+} from '@/features/workouts/statistiche'
 import { usePiano } from '@/features/mealplan/hooks'
 import {
   useAnnullaCompletamento,
@@ -87,6 +94,7 @@ export function HomePage() {
   const { pesi, caricamento: caricamentoPesi } = usePesi()
   const { voci: pastiOggi, caricamento: caricamentoPiano } = usePiano(oggi, oggi)
   const { task, caricamento: caricamentoTask } = useTaskAttive()
+  const { allenamenti, caricamento: caricamentoAllenamenti } = useAllenamenti()
   const { note } = useDiario()
   const { riepilogo, caricamento: caricamentoAbitudini } = useRiepilogoAbitudini()
   const spunta = useSpuntaAbitudine()
@@ -100,6 +108,10 @@ export function HomePage() {
   const statistiche = useMemo(
     () => calcolaStatistiche(pesi, pesi, profilo.weight_goal_kg),
     [pesi, profilo.weight_goal_kg],
+  )
+  const statAllenamenti = useMemo(
+    () => calcolaStatisticheAllenamenti(allenamenti),
+    [allenamenti],
   )
   const pesoDiOggi = pesi.find((p) => p.date === oggi) ?? null
   const notaDiOggi = note.find((n) => n.date === oggi) ?? null
@@ -190,6 +202,61 @@ export function HomePage() {
                 Registra il peso di oggi
               </LinkButton>
             </div>
+          )}
+        </Riquadro>
+
+        {/* --------------------------- allenamenti -------------------------- */}
+        <Riquadro
+          titolo="Allenamenti"
+          icona={<Dumbbell className="h-5 w-5" aria-hidden />}
+          collegamento="/allenamenti"
+          etichettaCollegamento="Vai agli allenamenti"
+        >
+          {caricamentoAllenamenti ? (
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-24" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          ) : allenamenti.length === 0 ? (
+            <div className="space-y-3">
+              <p className="text-sm text-ink-2">
+                Non hai ancora registrato nessun allenamento. Segna cosa hai fatto e per
+                quanto tempo.
+              </p>
+              <LinkButton to="/allenamenti?nuovo=1" dimensione="sm" variante="secondario">
+                Registra un allenamento
+              </LinkButton>
+            </div>
+          ) : (
+            <>
+              <p className="tnum text-3xl font-semibold text-ink">
+                {formatDurata(statAllenamenti.settimana.minuti)}
+              </p>
+              <p className="mt-1 text-sm text-ink-3">
+                {statAllenamenti.settimana.sessioni === 0
+                  ? 'Nessun allenamento questa settimana'
+                  : `${statAllenamenti.settimana.sessioni} ${
+                      statAllenamenti.settimana.sessioni === 1 ? 'sessione' : 'sessioni'
+                    } questa settimana`}
+              </p>
+              {statAllenamenti.ultimo && (
+                <p className="mt-3 flex items-center gap-2 text-sm text-ink-2">
+                  <span aria-hidden className="text-lg">
+                    {emojiAttivita(statAllenamenti.ultimo.activity)}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate">
+                    Ultimo: {statAllenamenti.ultimo.activity}
+                  </span>
+                  <span className="shrink-0 text-xs text-ink-3">
+                    {statAllenamenti.giorniDallUltimo === 0
+                      ? 'oggi'
+                      : statAllenamenti.giorniDallUltimo === 1
+                        ? 'ieri'
+                        : formatData(statAllenamenti.ultimo.date, 'd MMM')}
+                  </span>
+                </p>
+              )}
+            </>
           )}
         </Riquadro>
 
@@ -387,7 +454,6 @@ export function HomePage() {
           icona={<BookOpen className="h-5 w-5" aria-hidden />}
           collegamento="/diario"
           etichettaCollegamento="Vai al diario"
-          className="md:col-span-2 xl:col-span-1"
         >
           {notaDiOggi && (notaDiOggi.content.trim() !== '' || notaDiOggi.mood) ? (
             <div className="space-y-2">

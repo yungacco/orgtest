@@ -17,6 +17,7 @@ import { SegmentedControl, StatCard } from '@/components/ui/Controls'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState, ErrorState, SkeletonLista } from '@/components/ui/Feedback'
 import { PageHeader, SectionTitle } from '@/components/ui/PageHeader'
+import { SottoNavSalute } from '@/components/layout/SottoNavigazione'
 import { SwipeRow } from '@/components/ui/SwipeRow'
 import { useAperturaRapida } from '@/lib/aperturaRapida'
 import { dataRelativa, formatData, formatNumero, plurale } from '@/lib/format'
@@ -81,6 +82,8 @@ export function PesoPage() {
           </Button>
         }
       />
+
+      <SottoNavSalute />
 
       {errore ? (
         <ErrorState messaggio={errore.message} onRiprova={() => void ricarica()} />

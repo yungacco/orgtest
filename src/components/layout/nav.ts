@@ -3,6 +3,8 @@ import {
   BookOpen,
   CalendarDays,
   ChefHat,
+  Dumbbell,
+  HeartPulse,
   Home,
   ListTodo,
   Scale,
@@ -24,7 +26,12 @@ export interface VoceNav {
 /** Voci della barra in basso sul telefono (max 5, con target da 44px). */
 export const NAV_PRINCIPALE: VoceNav[] = [
   { percorso: '/', etichetta: 'Home', icona: Home },
-  { percorso: '/peso', etichetta: 'Peso', icona: Scale },
+  {
+    percorso: '/peso',
+    etichetta: 'Salute',
+    icona: HeartPulse,
+    altriPercorsi: ['/allenamenti'],
+  },
   {
     percorso: '/ricette',
     etichetta: 'Cibo',
@@ -61,12 +68,46 @@ export function voceAttiva(
   return percorso === voce.percorso
 }
 
-/** Voci aggiuntive: nella sidebar desktop e nelle schede interne su mobile. */
-export const NAV_SECONDARIA: VoceNav[] = [
-  { percorso: '/piano', etichetta: 'Piano pasti', icona: CalendarDays },
-  { percorso: '/spesa', etichetta: 'Lista della spesa', icona: ShoppingCart },
-  { percorso: '/archivio', etichetta: 'Archivio task', icona: Archive },
+export interface GruppoNav {
+  titolo: string
+  voci: VoceNav[]
+}
+
+/**
+ * Barra laterale del desktop: tutte le pagine, raggruppate per argomento.
+ *
+ * Sul telefono le stesse pagine si raggiungono con le schede in cima a ogni
+ * sezione; qui c'e' spazio per elencarle tutte, cosi' non si "nasconde"
+ * niente dietro a un altro schermo.
+ */
+export const GRUPPI_NAV: GruppoNav[] = [
+  {
+    titolo: 'Salute',
+    voci: [
+      { percorso: '/peso', etichetta: 'Peso', icona: Scale },
+      { percorso: '/allenamenti', etichetta: 'Allenamenti', icona: Dumbbell },
+    ],
+  },
+  {
+    titolo: 'Cibo',
+    voci: [
+      { percorso: '/ricette', etichetta: 'Ricettario', icona: ChefHat, prefisso: true },
+      { percorso: '/piano', etichetta: 'Piano pasti', icona: CalendarDays },
+      { percorso: '/spesa', etichetta: 'Lista della spesa', icona: ShoppingCart },
+    ],
+  },
+  {
+    titolo: 'Organizzazione',
+    voci: [
+      { percorso: '/task', etichetta: 'Task', icona: ListTodo },
+      { percorso: '/archivio', etichetta: 'Archivio task', icona: Archive },
+      { percorso: '/diario', etichetta: 'Diario', icona: BookOpen },
+    ],
+  },
 ]
+
+/** Unica voce fuori dai gruppi: la home. */
+export const VOCE_HOME: VoceNav = { percorso: '/', etichetta: 'Home', icona: Home }
 
 export const VOCE_IMPOSTAZIONI: VoceNav = {
   percorso: '/impostazioni',

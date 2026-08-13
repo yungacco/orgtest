@@ -26,6 +26,21 @@ export async function aggiungiVoci(voci: VoceSpesaInput[]): Promise<ShoppingItem
   ) as ShoppingItem[]
 }
 
+/**
+ * Applica in un colpo solo l'unione calcolata da `unisciNellaLista`:
+ * prima somma le quantita' delle voci gia' presenti, poi inserisce le nuove.
+ */
+export async function unisciVoci(unione: {
+  daInserire: VoceSpesaInput[]
+  daAggiornare: { id: UUID; quantity: number | null }[]
+}): Promise<{ inserite: ShoppingItem[]; aggiornate: ShoppingItem[] }> {
+  const aggiornate = await Promise.all(
+    unione.daAggiornare.map((voce) => aggiornaVoce(voce.id, { quantity: voce.quantity })),
+  )
+  const inserite = await aggiungiVoci(unione.daInserire)
+  return { inserite, aggiornate }
+}
+
 export async function aggiornaVoce(
   id: UUID,
   patch: Partial<Pick<ShoppingItem, 'name' | 'quantity' | 'unit' | 'checked'>>,

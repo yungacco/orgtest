@@ -228,6 +228,8 @@ function CardRicetta({ ricetta }: { ricetta: Recipe }) {
       <FotoRicetta
         percorso={ricetta.photo_path}
         alt={`Foto della ricetta ${ricetta.title}`}
+        categoria={ricetta.category}
+        titolo={ricetta.title}
         className="aspect-[4/3] w-full"
       />
       <div className="flex flex-1 flex-col gap-1.5 p-3">

@@ -12,6 +12,7 @@ const TABELLE = [
   'task_categories',
   'tasks',
   'weight_entries',
+  'workouts',
   'journal_entries',
   'habits',
   'habit_logs',

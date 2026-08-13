@@ -11,7 +11,8 @@ import { IconButton } from '@/components/ui/Button'
 import { useToast } from '@/components/ui/Toast'
 import { QuickAdd } from '@/features/quickadd/QuickAdd'
 import { StatoConnessione } from './StatoConnessione'
-import { NAV_PRINCIPALE, NAV_SECONDARIA, VOCE_IMPOSTAZIONI, voceAttiva } from './nav'
+import { GRUPPI_NAV, NAV_PRINCIPALE, VOCE_HOME, VOCE_IMPOSTAZIONI, voceAttiva } from './nav'
+import type { VoceNav } from './nav'
 import { Logo } from './Logo'
 
 function classiLink(attivo: boolean) {
@@ -20,6 +21,29 @@ function classiLink(attivo: boolean) {
     attivo
       ? 'bg-accent-500/12 text-accent-700 dark:text-accent-300'
       : 'text-ink-2 hover:bg-elev hover:text-ink',
+  )
+}
+
+/**
+ * Riga della barra laterale.
+ * Calcoliamo noi quale voce e' accesa (invece di usare NavLink) perche'
+ * NavLink imposta da solo `aria-current` e finirebbe per accenderne due:
+ * qui ogni gruppo elenca le pagine sorelle una per una.
+ */
+function VoceSidebar({ voce, percorso }: { voce: VoceNav; percorso: string }) {
+  const attiva = voceAttiva(voce, percorso)
+  return (
+    <Link
+      to={voce.percorso}
+      aria-current={attiva ? 'page' : undefined}
+      className={classiLink(attiva)}
+    >
+      <voce.icona
+        className={cn('h-5 w-5 shrink-0', attiva && 'text-accent-600 dark:text-accent-300')}
+        aria-hidden
+      />
+      {voce.etichetta}
+    </Link>
   )
 }
 
@@ -44,49 +68,25 @@ function Sidebar() {
 
       <nav aria-label="Sezioni principali" className="flex-1 overflow-y-auto px-3 pb-4">
         <ul className="space-y-1">
-          {NAV_PRINCIPALE.map((voce) => {
-            const attiva = voceAttiva(voce, percorso)
-            return (
-              <li key={voce.percorso}>
-                <Link
-                  to={voce.percorso}
-                  aria-current={attiva ? 'page' : undefined}
-                  className={classiLink(attiva)}
-                >
-                  <voce.icona
-                    className={cn(
-                      'h-5 w-5 shrink-0',
-                      attiva && 'text-accent-600 dark:text-accent-300',
-                    )}
-                    aria-hidden
-                  />
-                  {voce.etichetta}
-                </Link>
-              </li>
-            )
-          })}
+          <li>
+            <VoceSidebar voce={VOCE_HOME} percorso={percorso} />
+          </li>
         </ul>
 
-        <p className="px-3 pb-2 pt-6 text-xs font-semibold uppercase tracking-wide text-ink-3">
-          Organizzazione
-        </p>
-        <ul className="space-y-1">
-          {NAV_SECONDARIA.map((voce) => (
-            <li key={voce.percorso}>
-              <NavLink to={voce.percorso} className={({ isActive }) => classiLink(isActive)}>
-                {({ isActive }) => (
-                  <>
-                    <voce.icona
-                      className={cn('h-5 w-5 shrink-0', isActive && 'text-accent-600 dark:text-accent-300')}
-                      aria-hidden
-                    />
-                    {voce.etichetta}
-                  </>
-                )}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
+        {GRUPPI_NAV.map((gruppo) => (
+          <div key={gruppo.titolo}>
+            <p className="px-3 pb-2 pt-5 text-xs font-semibold uppercase tracking-wide text-ink-3">
+              {gruppo.titolo}
+            </p>
+            <ul className="space-y-1">
+              {gruppo.voci.map((voce) => (
+                <li key={voce.percorso}>
+                  <VoceSidebar voce={voce} percorso={percorso} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </nav>
 
       <div className="space-y-1 border-t border-line p-3">

@@ -56,6 +56,19 @@ export function SottoNav({ voci, etichetta }: { voci: VoceSottoNav[]; etichetta:
   )
 }
 
+/** Schede della sezione salute: peso e allenamenti. */
+export function SottoNavSalute() {
+  return (
+    <SottoNav
+      etichetta="Sezioni della salute"
+      voci={[
+        { percorso: '/peso', etichetta: 'Peso' },
+        { percorso: '/allenamenti', etichetta: 'Allenamenti' },
+      ]}
+    />
+  )
+}
+
 /** Schede della sezione dedicata al cibo: ricettario, piano e spesa. */
 export function SottoNavCibo() {
   const { voci } = useSpesa()

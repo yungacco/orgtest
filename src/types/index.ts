@@ -73,6 +73,37 @@ export type WeightEntryInput = {
 export type WeightRange = '7g' | '30g' | '3m' | '1a' | 'tutto'
 
 /* -------------------------------------------------------------------------- */
+/* Allenamenti                                                                */
+/* -------------------------------------------------------------------------- */
+
+export const INTENSITA = ['leggera', 'media', 'alta'] as const
+export type Intensita = (typeof INTENSITA)[number]
+
+export interface Workout {
+  id: UUID
+  user_id: UUID
+  date: ISODate
+  /** testo libero: "Corsa", "Palestra", "Nuoto"... */
+  activity: string
+  duration_min: number
+  intensity: Intensita
+  distance_km: number | null
+  calories: number | null
+  notes: string | null
+  created_at: string
+}
+
+export type WorkoutInput = {
+  date: ISODate
+  activity: string
+  duration_min: number
+  intensity: Intensita
+  distance_km: number | null
+  calories: number | null
+  notes: string | null
+}
+
+/* -------------------------------------------------------------------------- */
 /* Ricette e piano pasti                                                      */
 /* -------------------------------------------------------------------------- */
 
@@ -231,6 +262,7 @@ export interface BackupFile {
   data: {
     profile: Profile | null
     weight_entries: WeightEntry[]
+    workouts: Workout[]
     recipes: Recipe[]
     recipe_tags: RecipeTag[]
     meal_plan_entries: MealPlanEntry[]

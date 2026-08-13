@@ -13,6 +13,11 @@ const HomePage = lazy(() =>
 const PesoPage = lazy(() =>
   import('@/features/weight/PesoPage').then((m) => ({ default: m.PesoPage })),
 )
+const AllenamentiPage = lazy(() =>
+  import('@/features/workouts/AllenamentiPage').then((m) => ({
+    default: m.AllenamentiPage,
+  })),
+)
 const RicettePage = lazy(() =>
   import('@/features/recipes/RicettePage').then((m) => ({ default: m.RicettePage })),
 )
@@ -79,6 +84,7 @@ export function App() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/peso" element={<PesoPage />} />
+          <Route path="/allenamenti" element={<AllenamentiPage />} />
           <Route path="/ricette" element={<RicettePage />} />
           <Route path="/ricette/nuova" element={<RicettaFormPage />} />
           <Route path="/ricette/:id" element={<RicettaDettaglioPage />} />

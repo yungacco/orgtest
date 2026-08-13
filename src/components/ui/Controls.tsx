@@ -145,7 +145,11 @@ export function StatCard({
         <p className="text-[0.8rem] font-medium text-ink-3">{etichetta}</p>
         {icona && <span className="text-ink-3">{icona}</span>}
       </div>
-      <p className={cn('tnum mt-1.5 text-2xl font-semibold', toni[tono])}>{valore}</p>
+      {/* sul telefono il numero e' leggermente piu' piccolo: cosi' anche i
+          valori lunghi ("−3h 43min") restano su una riga sola */}
+      <p className={cn('tnum mt-1.5 text-[1.35rem] font-semibold leading-tight sm:text-2xl', toni[tono])}>
+        {valore}
+      </p>
       {dettaglio && <p className="mt-0.5 text-[0.8rem] text-ink-3">{dettaglio}</p>}
     </div>
   )

@@ -77,6 +77,8 @@ export function SelettoreRicetta({
                   <FotoRicetta
                     percorso={ricetta.photo_path}
                     alt=""
+                    categoria={ricetta.category}
+                    titolo={ricetta.title}
                     className="h-12 w-12 shrink-0 rounded-lg"
                   />
                   <span className="min-w-0 flex-1">

@@ -9,9 +9,11 @@ import {
   eliminaSpuntate,
   eliminaVoce,
   listaSpesa,
+  unisciVoci,
   type VoceSpesaInput,
 } from './api'
-import type { ShoppingItem, UUID } from '@/types'
+import { ingredientiDaRicette, unisciNellaLista } from './aggrega'
+import type { Recipe, ShoppingItem, UUID } from '@/types'
 
 export function useSpesa() {
   const { user } = useAuth()
@@ -43,6 +45,41 @@ export function useAggiungiVoci() {
         ...precedenti,
         ...create,
       ])
+    },
+    onError: (errore: Error) => toast.errore(errore.message),
+  })
+}
+
+export interface EsitoGenerazioneSpesa {
+  aggiunti: number
+  sommati: number
+}
+
+/**
+ * Aggiunge alla lista della spesa gli ingredienti delle ricette indicate.
+ * Se un ingrediente c'e' gia' (stesso nome e stessa unita', non ancora
+ * spuntato) somma le quantita' invece di creare un doppione.
+ */
+export function useGeneraSpesa() {
+  const { user } = useAuth()
+  const userId = user?.id ?? ''
+  const qc = useQueryClient()
+  const toast = useToast()
+  return useMutation({
+    mutationFn: async (ricette: Recipe[]): Promise<EsitoGenerazioneSpesa> => {
+      // rileggiamo dal server: la cache potrebbe non essere mai stata
+      // riempita (se la lista non e' ancora stata aperta) e finiremmo per
+      // duplicare tutto
+      const esistenti = await listaSpesa()
+      const unione = unisciNellaLista(esistenti, ingredientiDaRicette(ricette))
+      await unisciVoci(unione)
+      return {
+        aggiunti: unione.daInserire.length,
+        sommati: unione.daAggiornare.length,
+      }
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: qk.spesa(userId) })
     },
     onError: (errore: Error) => toast.errore(errore.message),
   })

@@ -29,8 +29,7 @@ import {
 } from '@/lib/format'
 import { useProfilo } from '@/features/settings/hooks'
 import { useRicette } from '@/features/recipes/hooks'
-import { ingredientiDaRicette } from '@/features/shopping/aggrega'
-import { useAggiungiVoci, useSpesa } from '@/features/shopping/hooks'
+import { useGeneraSpesa } from '@/features/shopping/hooks'
 import { MEAL_SLOTS } from '@/types'
 import type { MealSlot, Recipe } from '@/types'
 import { GeneratoreDialog } from './GeneratoreDialog'
@@ -43,8 +42,7 @@ export function PianoPage() {
   const toast = useToast()
   const { profilo } = useProfilo()
   const { ricette } = useRicette()
-  const { voci: vociSpesa } = useSpesa()
-  const aggiungiSpesa = useAggiungiVoci()
+  const generaLaSpesa = useGeneraSpesa()
 
   const [lunedi, setLunedi] = useState(() => inizioSettimana(new Date()))
   const da = toISO(lunedi)
@@ -101,18 +99,18 @@ export function PianoPage() {
       toast.info('Questa settimana non ha ancora pasti pianificati.')
       return
     }
-    const aggregati = ingredientiDaRicette(ricetteDellaSettimana)
-    const partenza = vociSpesa.length
-    await aggiungiSpesa.mutateAsync(
-      aggregati.map((voce, indice) => ({
-        name: voce.name,
-        quantity: voce.quantity,
-        unit: voce.unit,
-        manual: false,
-        sort_order: partenza + indice,
-      })),
+    const esito = await generaLaSpesa.mutateAsync(ricetteDellaSettimana)
+    const pezzi = [
+      esito.aggiunti > 0 &&
+        `${esito.aggiunti} ${esito.aggiunti === 1 ? 'articolo aggiunto' : 'articoli aggiunti'}`,
+      esito.sommati > 0 &&
+        `${esito.sommati} ${esito.sommati === 1 ? 'già presente aggiornato' : 'già presenti aggiornati'}`,
+    ].filter(Boolean)
+    toast.successo(
+      pezzi.length > 0
+        ? `Lista della spesa: ${pezzi.join(', ')}.`
+        : 'La lista della spesa era già aggiornata.',
     )
-    toast.successo(`Aggiunti ${aggregati.length} articoli alla lista della spesa.`)
     navigate('/spesa')
   }
 
@@ -132,10 +130,10 @@ export function PianoPage() {
               variante="secondario"
               iconaSinistra={<ShoppingCart className="h-4 w-4" />}
               onClick={generaSpesa}
-              caricamento={aggiungiSpesa.isPending}
+              caricamento={generaLaSpesa.isPending}
               className="hidden sm:inline-flex"
             >
-              Lista della spesa
+              Genera la spesa
             </Button>
             <Button
               iconaSinistra={<Dices className="h-4 w-4" />}
@@ -182,7 +180,7 @@ export function PianoPage() {
       {errore ? (
         <ErrorState messaggio={errore.message} onRiprova={() => void ricarica()} />
       ) : caricamento ? (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-7">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-7">
           {giorni.map((giorno) => (
             <div key={giorno} className="card h-52 animate-pulse" />
           ))}
@@ -204,7 +202,7 @@ export function PianoPage() {
         />
       ) : (
         <>
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-7">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-7">
             {giorni.map((giorno) => {
               const oggi = giorno === oggiISO()
               const calorie = totaleCalorie(giorno)
@@ -311,7 +309,7 @@ export function PianoPage() {
                           {voce.recipe ? (
                             <Link
                               to={`/ricette/${voce.recipe.id}`}
-                              className="block truncate text-sm font-medium text-ink hover:text-accent-600 dark:hover:text-accent-300"
+                              className="block line-clamp-2 text-sm font-medium leading-snug text-ink hover:text-accent-600 dark:hover:text-accent-300"
                               title={voce.recipe.title}
                             >
                               {voce.recipe.title}
@@ -333,7 +331,7 @@ export function PianoPage() {
               variante="secondario"
               iconaSinistra={<ShoppingCart className="h-4 w-4" />}
               onClick={generaSpesa}
-              caricamento={aggiungiSpesa.isPending}
+              caricamento={generaLaSpesa.isPending}
               className="sm:hidden"
               larghezzaPiena
             >

@@ -40,6 +40,7 @@ export const persister = createSyncStoragePersister({
 export const qk = {
   profilo: (userId: string) => ['profilo', userId] as const,
   pesi: (userId: string) => ['pesi', userId] as const,
+  allenamenti: (userId: string) => ['allenamenti', userId] as const,
   ricette: (userId: string) => ['ricette', userId] as const,
   ricetta: (userId: string, id: string) => ['ricetta', userId, id] as const,
   tagRicette: (userId: string) => ['tag-ricette', userId] as const,

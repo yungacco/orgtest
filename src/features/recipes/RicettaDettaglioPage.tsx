@@ -63,6 +63,8 @@ export function RicettaDettaglioPage() {
       <FotoRicetta
         percorso={ricetta.photo_path}
         alt={`Foto della ricetta ${ricetta.title}`}
+        categoria={ricetta.category}
+        titolo={ricetta.title}
         className="aspect-[16/10] w-full rounded-2xl border border-line sm:aspect-[2/1]"
       />
 

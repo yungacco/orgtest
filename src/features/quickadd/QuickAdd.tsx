@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { BookOpen, ChefHat, ListTodo, Plus, Scale } from 'lucide-react'
+import { BookOpen, ChefHat, Dumbbell, ListTodo, Plus, Scale } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
@@ -13,6 +13,7 @@ interface Azione {
 
 const AZIONI: Azione[] = [
   { etichetta: 'Registra il peso', icona: Scale, destinazione: '/peso?nuovo=1' },
+  { etichetta: 'Allenamento', icona: Dumbbell, destinazione: '/allenamenti?nuovo=1' },
   { etichetta: 'Nuova ricetta', icona: ChefHat, destinazione: '/ricette/nuova' },
   { etichetta: 'Nuova task', icona: ListTodo, destinazione: '/task?nuovo=1' },
   { etichetta: 'Scrivi nel diario', icona: BookOpen, destinazione: '/diario?nuovo=1' },
@@ -21,6 +22,10 @@ const AZIONI: Azione[] = [
 /** Su queste pagine il "+" fa direttamente l'azione principale della pagina. */
 const AZIONE_DIRETTA: Record<string, { destinazione: string; etichetta: string }> = {
   '/peso': { destinazione: '/peso?nuovo=1', etichetta: 'Registra il peso' },
+  '/allenamenti': {
+    destinazione: '/allenamenti?nuovo=1',
+    etichetta: 'Registra un allenamento',
+  },
   '/ricette': { destinazione: '/ricette/nuova', etichetta: 'Nuova ricetta' },
   '/task': { destinazione: '/task?nuovo=1', etichetta: 'Nuova task' },
   '/diario': { destinazione: '/diario?nuovo=1', etichetta: 'Scrivi nel diario' },

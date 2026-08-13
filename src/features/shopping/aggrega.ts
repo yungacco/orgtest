@@ -1,5 +1,6 @@
 import { formatNumeroCompatto } from '@/lib/format'
-import type { Ingredient, Recipe, ShoppingItem } from '@/types'
+import type { Ingredient, Recipe, ShoppingItem, UUID } from '@/types'
+import type { VoceSpesaInput } from './api'
 
 export interface VoceAggregata {
   name: string
@@ -51,6 +52,62 @@ export function aggregaIngredienti(ingredienti: Ingredient[]): VoceAggregata[] {
 /** Tutti gli ingredienti delle ricette indicate, gia' raggruppati. */
 export function ingredientiDaRicette(ricette: Recipe[]): VoceAggregata[] {
   return aggregaIngredienti(ricette.flatMap((r) => r.ingredients))
+}
+
+export interface UnioneSpesa {
+  /** voci che non c'erano: vanno inserite */
+  daInserire: VoceSpesaInput[]
+  /** voci gia' presenti a cui cambia la quantita' */
+  daAggiornare: { id: UUID; quantity: number | null }[]
+}
+
+/**
+ * Prepara l'aggiunta di una lista di ingredienti a una lista della spesa che
+ * potrebbe gia' contenere qualcosa.
+ *
+ * Serve a non ritrovarsi "Farina" scritto tre volte se si preme due volte
+ * "genera la spesa": quello che c'e' gia' viene sommato invece che ripetuto.
+ * Le voci gia' spuntate non contano come presenti — sono roba comprata, se
+ * serve di nuovo va ricomprata.
+ */
+export function unisciNellaLista(
+  esistenti: ShoppingItem[],
+  aggregati: VoceAggregata[],
+): UnioneSpesa {
+  const daPrendere = new Map<string, ShoppingItem>()
+  for (const voce of esistenti) {
+    if (voce.checked) continue
+    const k = chiave(voce.name, voce.unit)
+    if (!daPrendere.has(k)) daPrendere.set(k, voce)
+  }
+
+  const daInserire: VoceSpesaInput[] = []
+  const daAggiornare: UnioneSpesa['daAggiornare'] = []
+  let ordine = esistenti.reduce((massimo, v) => Math.max(massimo, v.sort_order), -1) + 1
+
+  for (const nuova of aggregati) {
+    const esistente = daPrendere.get(chiave(nuova.name, nuova.unit))
+    if (!esistente) {
+      daInserire.push({
+        name: nuova.name,
+        quantity: nuova.quantity,
+        unit: nuova.unit,
+        manual: false,
+        sort_order: ordine++,
+      })
+      continue
+    }
+    // quantita' sconosciuta da una delle due parti: la somma non avrebbe senso
+    const somma =
+      esistente.quantity === null || nuova.quantity === null
+        ? null
+        : Number(esistente.quantity) + Number(nuova.quantity)
+    if (somma !== (esistente.quantity === null ? null : Number(esistente.quantity))) {
+      daAggiornare.push({ id: esistente.id, quantity: somma })
+    }
+  }
+
+  return { daInserire, daAggiornare }
 }
 
 /** "Farina 300 g" — usata nella lista e nella copia come testo. */
