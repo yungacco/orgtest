@@ -45,6 +45,9 @@ import { useToast } from '@/components/ui/Toast'
 import { MEAL_SLOTS } from '@/types'
 import type { ReactNode } from 'react'
 
+/** Quante righe mostrare nei riquadri "Da fare" e "Abitudini". */
+const QUANTE_IN_RIEPILOGO = 3
+
 function saluto(): string {
   const ora = new Date().getHours()
   if (ora < 5) return 'Buonanotte'
@@ -60,6 +63,7 @@ function Riquadro({
   etichettaCollegamento,
   children,
   className,
+  compatto = false,
 }: {
   titolo: string
   icona: ReactNode
@@ -67,18 +71,46 @@ function Riquadro({
   etichettaCollegamento: string
   children: ReactNode
   className?: string
+  /**
+   * Riquadri stretti (sul telefono ne stanno due per riga): icona piu'
+   * piccola, titolo piu' piccolo e freccia solo dove c'e' spazio.
+   */
+  compatto?: boolean
 }) {
   return (
-    <section className={cn('card flex flex-col p-4', className)}>
-      <header className="mb-3 flex items-center gap-2.5">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-500/12 text-accent-600 dark:text-accent-300">
+    <section className={cn('card flex flex-col p-3.5 sm:p-4', className)}>
+      <header
+        className={cn(
+          'flex items-center',
+          compatto ? 'mb-2 gap-2 sm:gap-2.5' : 'mb-3 gap-2.5',
+        )}
+      >
+        <span
+          className={cn(
+            'flex shrink-0 items-center justify-center rounded-xl bg-accent-500/12 text-accent-600 dark:text-accent-300',
+            compatto ? 'h-7 w-7 sm:h-9 sm:w-9' : 'h-9 w-9',
+            compatto && '[&>svg]:h-4 [&>svg]:w-4 sm:[&>svg]:h-5 sm:[&>svg]:w-5',
+          )}
+        >
           {icona}
         </span>
-        <h2 className="flex-1 font-semibold text-ink">{titolo}</h2>
+        <h2
+          className={cn(
+            'min-w-0 flex-1 truncate font-semibold text-ink',
+            compatto && 'text-sm sm:text-base',
+          )}
+        >
+          {titolo}
+        </h2>
         <Link
           to={collegamento}
           aria-label={etichettaCollegamento}
-          className="tap -mr-2 flex items-center justify-center rounded-xl px-2 text-ink-3 transition-colors hover:bg-elev hover:text-ink"
+          className={cn(
+            'tap -mr-2 items-center justify-center rounded-xl px-2 text-ink-3 transition-colors hover:bg-elev hover:text-ink',
+            // nei riquadri stretti la freccia ruberebbe spazio al titolo:
+            // sul telefono si tocca direttamente il contenuto
+            compatto ? 'hidden sm:flex' : 'flex',
+          )}
         >
           <ChevronRight className="h-5 w-5" aria-hidden />
         </Link>
@@ -120,11 +152,11 @@ export function HomePage() {
     () =>
       task
         .filter((t) => t.due_date !== null && t.due_date <= oggi)
-        .slice(0, 4),
+        .slice(0, QUANTE_IN_RIEPILOGO),
     [task, oggi],
   )
   const prossime = useMemo(
-    () => (inEvidenza.length > 0 ? inEvidenza : task.slice(0, 4)),
+    () => (inEvidenza.length > 0 ? inEvidenza : task.slice(0, QUANTE_IN_RIEPILOGO)),
     [inEvidenza, task],
   )
 
@@ -150,115 +182,118 @@ export function HomePage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       <PageHeader
         titolo={nome ? `${saluto()}, ${nome}` : saluto()}
         sottotitolo={capitalizza(formatData(new Date(), 'EEEE d MMMM'))}
       />
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {/* ------------------------------ peso ------------------------------ */}
-        <Riquadro
-          titolo="Peso"
-          icona={<Scale className="h-5 w-5" aria-hidden />}
-          collegamento="/peso"
-          etichettaCollegamento="Vai alla sezione Peso"
-        >
-          {caricamentoPesi || caricamentoProfilo ? (
-            <div className="space-y-2">
-              <Skeleton className="h-8 w-24" />
-              <Skeleton className="h-4 w-32" />
-            </div>
-          ) : pesoDiOggi ? (
-            <>
-              <p className="tnum text-3xl font-semibold text-ink">
-                {formatPeso(Number(pesoDiOggi.weight_kg), unita)}
-              </p>
-              <p className="mt-1 text-sm text-ink-3">
-                Registrato oggi
-                {statistiche.deltaSettimana !== null && (
-                  <>
-                    {' · '}
-                    <span
-                      className={
-                        statistiche.deltaSettimana < 0 ? 'text-success' : 'text-danger'
-                      }
-                    >
-                      {formatDeltaPeso(statistiche.deltaSettimana, unita)}
-                    </span>{' '}
-                    in una settimana
-                  </>
-                )}
-              </p>
-            </>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-sm text-ink-2">
-                {statistiche.attuale
-                  ? `Ultima misurazione: ${formatPeso(Number(statistiche.attuale.weight_kg), unita)} il ${formatData(statistiche.attuale.date, 'd MMM')}.`
-                  : 'Non hai ancora registrato nessun peso.'}
-              </p>
-              <LinkButton to="/peso?nuovo=1" dimensione="sm">
-                Registra il peso di oggi
-              </LinkButton>
-            </div>
-          )}
-        </Riquadro>
-
-        {/* --------------------------- allenamenti -------------------------- */}
-        <Riquadro
-          titolo="Allenamenti"
-          icona={<Dumbbell className="h-5 w-5" aria-hidden />}
-          collegamento="/allenamenti"
-          etichettaCollegamento="Vai agli allenamenti"
-        >
-          {caricamentoAllenamenti ? (
-            <div className="space-y-2">
-              <Skeleton className="h-8 w-24" />
-              <Skeleton className="h-4 w-32" />
-            </div>
-          ) : allenamenti.length === 0 ? (
-            <div className="space-y-3">
-              <p className="text-sm text-ink-2">
-                Non hai ancora registrato nessun allenamento. Segna cosa hai fatto e per
-                quanto tempo.
-              </p>
-              <LinkButton to="/allenamenti?nuovo=1" dimensione="sm" variante="secondario">
-                Registra un allenamento
-              </LinkButton>
-            </div>
-          ) : (
-            <>
-              <p className="tnum text-3xl font-semibold text-ink">
-                {formatDurata(statAllenamenti.settimana.minuti)}
-              </p>
-              <p className="mt-1 text-sm text-ink-3">
-                {statAllenamenti.settimana.sessioni === 0
-                  ? 'Nessun allenamento questa settimana'
-                  : `${statAllenamenti.settimana.sessioni} ${
-                      statAllenamenti.settimana.sessioni === 1 ? 'sessione' : 'sessioni'
-                    } questa settimana`}
-              </p>
-              {statAllenamenti.ultimo && (
-                <p className="mt-3 flex items-center gap-2 text-sm text-ink-2">
-                  <span aria-hidden className="text-lg">
-                    {emojiAttivita(statAllenamenti.ultimo.activity)}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate">
-                    Ultimo: {statAllenamenti.ultimo.activity}
-                  </span>
-                  <span className="shrink-0 text-xs text-ink-3">
-                    {statAllenamenti.giorniDallUltimo === 0
-                      ? 'oggi'
-                      : statAllenamenti.giorniDallUltimo === 1
-                        ? 'ieri'
-                        : formatData(statAllenamenti.ultimo.date, 'd MMM')}
-                  </span>
+        {/* Peso e allenamenti sono due numeri soli: sul telefono stanno
+            affiancati, cosi' la prima schermata mostra qualcosa in piu'.
+            Da tablet in su tornano riquadri normali della griglia. */}
+        <div className="grid grid-cols-2 gap-3 md:contents">
+          {/* ----------------------------- peso ----------------------------- */}
+          <Riquadro
+            compatto
+            titolo="Peso"
+            icona={<Scale className="h-5 w-5" aria-hidden />}
+            collegamento="/peso"
+            etichettaCollegamento="Vai alla sezione Peso"
+          >
+            {caricamentoPesi || caricamentoProfilo ? (
+              <div className="space-y-2">
+                <Skeleton className="h-7 w-20" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            ) : pesoDiOggi ? (
+              <>
+                <p className="tnum text-2xl font-semibold text-ink sm:text-3xl">
+                  {formatPeso(Number(pesoDiOggi.weight_kg), unita)}
                 </p>
-              )}
-            </>
-          )}
-        </Riquadro>
+                <p className="mt-1 text-[0.8rem] text-ink-3 sm:text-sm">
+                  Oggi
+                  {statistiche.deltaSettimana !== null && (
+                    <>
+                      {' · '}
+                      <span
+                        className={
+                          statistiche.deltaSettimana < 0 ? 'text-success' : 'text-danger'
+                        }
+                      >
+                        {formatDeltaPeso(statistiche.deltaSettimana, unita)}
+                      </span>{' '}
+                      in 7 giorni
+                    </>
+                  )}
+                </p>
+              </>
+            ) : (
+              <div className="space-y-2.5">
+                <p className="text-[0.8rem] text-ink-2 sm:text-sm">
+                  {statistiche.attuale
+                    ? `Ultima volta ${formatPeso(Number(statistiche.attuale.weight_kg), unita)} il ${formatData(statistiche.attuale.date, 'd MMM')}.`
+                    : 'Non hai ancora registrato nessun peso.'}
+                </p>
+                <LinkButton to="/peso?nuovo=1" dimensione="sm">
+                  Registra
+                </LinkButton>
+              </div>
+            )}
+          </Riquadro>
+
+          {/* -------------------------- allenamenti ------------------------- */}
+          <Riquadro
+            compatto
+            titolo="Allenamenti"
+            icona={<Dumbbell className="h-5 w-5" aria-hidden />}
+            collegamento="/allenamenti"
+            etichettaCollegamento="Vai agli allenamenti"
+          >
+            {caricamentoAllenamenti ? (
+              <div className="space-y-2">
+                <Skeleton className="h-7 w-20" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            ) : allenamenti.length === 0 ? (
+              <div className="space-y-2.5">
+                <p className="text-[0.8rem] text-ink-2 sm:text-sm">
+                  Segna cosa hai fatto e per quanto tempo.
+                </p>
+                <LinkButton to="/allenamenti?nuovo=1" dimensione="sm" variante="secondario">
+                  Registra
+                </LinkButton>
+              </div>
+            ) : (
+              <>
+                <p className="tnum text-2xl font-semibold text-ink sm:text-3xl">
+                  {formatDurata(statAllenamenti.settimana.minuti)}
+                </p>
+                <p className="mt-1 text-[0.8rem] text-ink-3 sm:text-sm">
+                  {statAllenamenti.settimana.sessioni === 0
+                    ? 'Ferma questa settimana'
+                    : `${statAllenamenti.settimana.sessioni} ${
+                        statAllenamenti.settimana.sessioni === 1 ? 'sessione' : 'sessioni'
+                      } in settimana`}
+                </p>
+                {statAllenamenti.ultimo && (
+                  <p className="mt-2 flex items-center gap-1.5 text-[0.8rem] text-ink-2 sm:mt-3 sm:text-sm">
+                    <span aria-hidden>{emojiAttivita(statAllenamenti.ultimo.activity)}</span>
+                    <span className="min-w-0 flex-1 truncate">
+                      {statAllenamenti.ultimo.activity}
+                      {', '}
+                      {statAllenamenti.giorniDallUltimo === 0
+                        ? 'oggi'
+                        : statAllenamenti.giorniDallUltimo === 1
+                          ? 'ieri'
+                          : formatData(statAllenamenti.ultimo.date, 'd MMM')}
+                    </span>
+                  </p>
+                )}
+              </>
+            )}
+          </Riquadro>
+        </div>
 
         {/* ------------------------------ pasti ----------------------------- */}
         <Riquadro
@@ -407,7 +442,7 @@ export function HomePage() {
             </div>
           ) : (
             <ul className="space-y-2">
-              {riepilogo.slice(0, 4).map(({ abitudine, streak }) => (
+              {riepilogo.slice(0, QUANTE_IN_RIEPILOGO).map(({ abitudine, streak }) => (
                 <li key={abitudine.id} className="flex items-center gap-2.5">
                   <span aria-hidden className="text-lg">
                     {abitudine.emoji}
@@ -462,7 +497,7 @@ export function HomePage() {
                   {EMOJI_UMORE[notaDiOggi.mood]}
                 </p>
               )}
-              <p className="line-clamp-4 text-sm leading-relaxed text-ink-2">
+              <p className="line-clamp-3 text-sm leading-relaxed text-ink-2">
                 {notaDiOggi.content.trim() === ''
                   ? 'Hai segnato l’umore di oggi.'
                   : notaDiOggi.content}

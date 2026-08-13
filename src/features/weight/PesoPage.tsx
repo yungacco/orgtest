@@ -180,7 +180,9 @@ export function PesoPage() {
             <StatCard
               etichetta="Min / max del periodo"
               valore={
-                <span className="whitespace-nowrap text-base sm:text-xl">
+                // due numeri in una riga sola: la dimensione cresce solo
+                // quando la colonna e' abbastanza larga da contenerli
+                <span className="whitespace-nowrap text-base sm:text-lg xl:text-xl">
                   {formatPeso(Number(statistiche.minimo?.weight_kg), unita, {
                     senzaUnita: true,
                   })}{' '}

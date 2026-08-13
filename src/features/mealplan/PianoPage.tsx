@@ -180,7 +180,7 @@ export function PianoPage() {
       {errore ? (
         <ErrorState messaggio={errore.message} onRiprova={() => void ricarica()} />
       ) : caricamento ? (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-7">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {giorni.map((giorno) => (
             <div key={giorno} className="card h-52 animate-pulse" />
           ))}
@@ -202,7 +202,7 @@ export function PianoPage() {
         />
       ) : (
         <>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-7">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {giorni.map((giorno) => {
               const oggi = giorno === oggiISO()
               const calorie = totaleCalorie(giorno)
@@ -254,11 +254,14 @@ export function PianoPage() {
                           key={pasto}
                           className="group rounded-lg bg-elev px-2 py-1.5 transition-colors"
                         >
-                          <div className="flex items-start justify-between gap-1">
-                            <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-ink-3">
+                          <div className="flex items-center justify-between gap-1">
+                            {/* min-w-0 + truncate: se la colonna e' stretta si
+                                accorcia l'etichetta, i pulsanti non escono
+                                mai dal riquadro del giorno */}
+                            <span className="min-w-0 truncate text-[0.65rem] font-semibold uppercase tracking-wide text-ink-3">
                               {pasto}
                             </span>
-                            <div className="flex shrink-0 items-center gap-0.5">
+                            <div className="-mr-1 flex shrink-0 items-center gap-0.5">
                               <button
                                 type="button"
                                 aria-label={
