@@ -72,6 +72,28 @@ create index if not exists weight_entries_user_date_idx
   on public.weight_entries (user_id, date desc);
 
 -- ===========================================================================
+-- 2-bis. ALLENAMENTI
+-- ===========================================================================
+create table if not exists public.workouts (
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  date         date not null default current_date,
+  -- testo libero: "Corsa", "Palestra", "Nuoto"... con dei suggerimenti nell'app
+  activity     text not null check (char_length(trim(activity)) between 1 and 60),
+  duration_min integer not null check (duration_min between 1 and 1440),
+  intensity    text not null default 'media'
+               check (intensity in ('leggera', 'media', 'alta')),
+  -- facoltativi: chi corre o pedala vuole i chilometri, gli altri no
+  distance_km  numeric(6, 2) check (distance_km is null or distance_km >= 0),
+  calories     integer check (calories is null or calories between 0 and 20000),
+  notes        text,
+  created_at   timestamptz not null default now()
+);
+
+create index if not exists workouts_user_date_idx
+  on public.workouts (user_id, date desc);
+
+-- ===========================================================================
 -- 3. RICETTE, PIANO PASTI, LISTA DELLA SPESA
 -- ===========================================================================
 create table if not exists public.recipe_tags (
@@ -261,9 +283,9 @@ declare
   owner_col text;
 begin
   foreach t in array array[
-    'profiles', 'weight_entries', 'recipes', 'recipe_tags', 'meal_plan_entries',
-    'shopping_items', 'tasks', 'task_categories', 'journal_entries',
-    'habits', 'habit_logs'
+    'profiles', 'weight_entries', 'workouts', 'recipes', 'recipe_tags',
+    'meal_plan_entries', 'shopping_items', 'tasks', 'task_categories',
+    'journal_entries', 'habits', 'habit_logs'
   ]
   loop
     -- nella tabella profiles la colonna che identifica l'utente e' la chiave primaria
@@ -342,6 +364,7 @@ begin
   delete from public.recipes           where user_id = uid;
   delete from public.recipe_tags       where user_id = uid;
   delete from public.weight_entries    where user_id = uid;
+  delete from public.workouts          where user_id = uid;
 
   update public.profiles
      set display_name = null,
