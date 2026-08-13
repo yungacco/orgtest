@@ -1,17 +1,23 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Archive, ArrowLeft, RotateCcw, Search, Trash2 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Archive, RotateCcw, Search, Trash2 } from 'lucide-react'
 import { Button, LinkButton } from '@/components/ui/Button'
 import { SegmentedControl } from '@/components/ui/Controls'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState, ErrorState, SkeletonLista } from '@/components/ui/Feedback'
 import { Input } from '@/components/ui/Field'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { SottoNavTask } from '@/components/layout/SottoNavigazione'
 import { SwipeRow } from '@/components/ui/SwipeRow'
 import { useToast } from '@/components/ui/Toast'
 import { capitalizza, formatData, oggiISO, sommaGiorni } from '@/lib/format'
-import { useCategorieTask, useEliminaTask, useModificaTask, useTaskArchiviate } from './hooks'
+import {
+  useCategorieTask,
+  useEliminaTask,
+  useModificaTask,
+  useTaskArchiviate,
+  useTaskAttive,
+} from './hooks'
 import type { Task } from '@/types'
 
 type Periodo = '7g' | '30g' | 'anno' | 'tutto'
@@ -25,6 +31,7 @@ const PERIODI: { valore: Periodo; etichetta: string; giorni: number | null }[] =
 
 export function ArchivioPage() {
   const { task, caricamento, errore, ricarica } = useTaskArchiviate()
+  const { task: attive } = useTaskAttive()
   const { categorie } = useCategorieTask()
   const modifica = useModificaTask()
   const elimina = useEliminaTask()
@@ -68,18 +75,9 @@ export function ArchivioPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      <Link
-        to="/task"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-2 hover:text-ink"
-      >
-        <ArrowLeft className="h-4 w-4" aria-hidden />
-        Task attive
-      </Link>
+      <PageHeader titolo="Archivio" sottotitolo="Tutto quello che hai già completato" />
 
-      <PageHeader
-        titolo="Archivio"
-        sottotitolo="Tutto quello che hai già completato"
-      />
+      <SottoNavTask attive={attive.length} />
 
       <div className="space-y-3">
         <div className="relative">

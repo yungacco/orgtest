@@ -6,6 +6,7 @@ import { Checkbox, Input } from '@/components/ui/Field'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState, ErrorState, SkeletonLista } from '@/components/ui/Feedback'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { SottoNavCibo } from '@/components/layout/SottoNavigazione'
 import { useToast } from '@/components/ui/Toast'
 import { useAperturaRapida } from '@/lib/aperturaRapida'
 import { cn } from '@/lib/cn'
@@ -114,6 +115,8 @@ export function SpesaPage() {
           )
         }
       />
+
+      <SottoNavCibo />
 
       <form onSubmit={aggiungiVoce} className="flex gap-2">
         <Input

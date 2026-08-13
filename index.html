@@ -8,6 +8,7 @@
     />
     <meta name="description" content="Benessere: peso, ricette, task e diario in un'unica app personale." />
     <meta name="theme-color" content="#ffffff" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Benessere" />
@@ -37,6 +38,62 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!--
+      Rete di sicurezza: se dopo qualche secondo l'applicazione non è
+      partita, invece di una pagina bianca senza spiegazioni compare questo
+      avviso. Appena React si avvia, il riquadro viene tolto.
+    -->
+    <div
+      id="avviso-caricamento"
+      hidden
+      style="
+        max-width: 34rem;
+        margin: 3rem auto;
+        padding: 0 1.25rem;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        line-height: 1.6;
+        color: #0f172a;
+      "
+    >
+      <h1 style="font-size: 1.25rem; margin-bottom: 0.5rem">Il sito non è riuscito ad avviarsi</h1>
+      <p>
+        Il browser non ha caricato l’applicazione. Quasi sempre significa che GitHub
+        Pages sta pubblicando i file del progetto così come sono, invece del sito
+        compilato.
+      </p>
+      <p style="margin-top: 0.75rem"><strong>Controlla queste tre cose:</strong></p>
+      <ol style="padding-left: 1.25rem">
+        <li>
+          nel repository esiste il file
+          <code style="background: #eef2f7; padding: 0 0.25rem; border-radius: 4px"
+            >.github/workflows/deploy.yml</code
+          >
+          (è in una cartella nascosta: caricando i file a mano è facile dimenticarlo);
+        </li>
+        <li>
+          in <strong>Settings → Pages</strong>, alla voce <em>Source</em>, è scelto
+          <strong>GitHub Actions</strong> e non “Deploy from a branch”;
+        </li>
+        <li>
+          nella scheda <strong>Actions</strong> l’ultima esecuzione è andata a buon fine
+          (spunta verde).
+        </li>
+      </ol>
+      <p style="margin-top: 0.75rem; color: #475569">
+        Trovi la procedura completa nel file README.md del repository.
+      </p>
+    </div>
+    <script>
+      window.__benessereAvviato = false
+      setTimeout(function () {
+        if (!window.__benessereAvviato) {
+          var avviso = document.getElementById('avviso-caricamento')
+          if (avviso) avviso.hidden = false
+        }
+      }, 4000)
+    </script>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

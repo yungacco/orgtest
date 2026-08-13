@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { LogOut, Settings } from 'lucide-react'
 import { cn } from '@/lib/cn'
@@ -11,7 +11,7 @@ import { IconButton } from '@/components/ui/Button'
 import { useToast } from '@/components/ui/Toast'
 import { QuickAdd } from '@/features/quickadd/QuickAdd'
 import { StatoConnessione } from './StatoConnessione'
-import { NAV_PRINCIPALE, NAV_SECONDARIA, VOCE_IMPOSTAZIONI } from './nav'
+import { NAV_PRINCIPALE, NAV_SECONDARIA, VOCE_IMPOSTAZIONI, voceAttiva } from './nav'
 import { Logo } from './Logo'
 
 function classiLink(attivo: boolean) {
@@ -25,6 +25,7 @@ function classiLink(attivo: boolean) {
 
 /** Barra laterale fissa: solo da tablet/desktop in su. */
 function Sidebar() {
+  const { pathname: percorso } = useLocation()
   const { user, esci } = useAuth()
   const { profilo } = useProfilo()
   const toast = useToast()
@@ -43,25 +44,27 @@ function Sidebar() {
 
       <nav aria-label="Sezioni principali" className="flex-1 overflow-y-auto px-3 pb-4">
         <ul className="space-y-1">
-          {NAV_PRINCIPALE.map((voce) => (
-            <li key={voce.percorso}>
-              <NavLink
-                to={voce.percorso}
-                end={!voce.prefisso}
-                className={({ isActive }) => classiLink(isActive)}
-              >
-                {({ isActive }) => (
-                  <>
-                    <voce.icona
-                      className={cn('h-5 w-5 shrink-0', isActive && 'text-accent-600 dark:text-accent-300')}
-                      aria-hidden
-                    />
-                    {voce.etichetta}
-                  </>
-                )}
-              </NavLink>
-            </li>
-          ))}
+          {NAV_PRINCIPALE.map((voce) => {
+            const attiva = voceAttiva(voce, percorso)
+            return (
+              <li key={voce.percorso}>
+                <Link
+                  to={voce.percorso}
+                  aria-current={attiva ? 'page' : undefined}
+                  className={classiLink(attiva)}
+                >
+                  <voce.icona
+                    className={cn(
+                      'h-5 w-5 shrink-0',
+                      attiva && 'text-accent-600 dark:text-accent-300',
+                    )}
+                    aria-hidden
+                  />
+                  {voce.etichetta}
+                </Link>
+              </li>
+            )
+          })}
         </ul>
 
         <p className="px-3 pb-2 pt-6 text-xs font-semibold uppercase tracking-wide text-ink-3">
@@ -111,6 +114,8 @@ function Sidebar() {
 
 /** Barra di navigazione in basso: solo su telefono. */
 function BottomNav() {
+  const { pathname: percorso } = useLocation()
+
   return (
     <nav
       aria-label="Sezioni principali"
@@ -120,38 +125,35 @@ function BottomNav() {
       )}
     >
       <ul className="flex items-stretch justify-around">
-        {NAV_PRINCIPALE.map((voce) => (
-          <li key={voce.percorso} className="flex-1">
-            <NavLink
-              to={voce.percorso}
-              end={!voce.prefisso}
-              className={({ isActive }) =>
-                cn(
+        {NAV_PRINCIPALE.map((voce) => {
+          const attiva = voceAttiva(voce, percorso, true)
+          return (
+            <li key={voce.percorso} className="flex-1">
+              <Link
+                to={voce.percorso}
+                aria-current={attiva ? 'page' : undefined}
+                className={cn(
                   'relative flex h-full min-h-[3.5rem] flex-col items-center justify-center gap-0.5 px-1 pt-1.5 text-[0.68rem] font-medium transition-colors',
-                  isActive ? 'text-accent-600 dark:text-accent-300' : 'text-ink-3',
-                )
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  {isActive && (
-                    <motion.span
-                      layoutId="indicatore-nav"
-                      className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-accent-600 dark:bg-accent-300"
-                      transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-                    />
-                  )}
-                  <voce.icona
-                    className="h-[1.35rem] w-[1.35rem]"
-                    strokeWidth={isActive ? 2.4 : 1.9}
-                    aria-hidden
+                  attiva ? 'text-accent-600 dark:text-accent-300' : 'text-ink-3',
+                )}
+              >
+                {attiva && (
+                  <motion.span
+                    layoutId="indicatore-nav"
+                    className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-accent-600 dark:bg-accent-300"
+                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
                   />
-                  <span>{voce.etichetta}</span>
-                </>
-              )}
-            </NavLink>
-          </li>
-        ))}
+                )}
+                <voce.icona
+                  className="h-[1.35rem] w-[1.35rem]"
+                  strokeWidth={attiva ? 2.4 : 1.9}
+                  aria-hidden
+                />
+                <span>{voce.etichetta}</span>
+              </Link>
+            </li>
+          )
+        })}
       </ul>
     </nav>
   )

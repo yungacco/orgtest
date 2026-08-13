@@ -17,13 +17,14 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Archive, GripVertical, ListTodo, Pencil, Plus, Repeat, Trash2 } from 'lucide-react'
-import { Button, LinkButton } from '@/components/ui/Button'
+import { GripVertical, ListTodo, Pencil, Plus, Repeat, Trash2 } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
 import { Checkbox } from '@/components/ui/Field'
 import { Chip } from '@/components/ui/Controls'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState, ErrorState, SkeletonLista } from '@/components/ui/Feedback'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { SottoNavTask } from '@/components/layout/SottoNavigazione'
 import { useToast } from '@/components/ui/Toast'
 import { useAperturaRapida } from '@/lib/aperturaRapida'
 import { cn } from '@/lib/cn'
@@ -132,27 +133,20 @@ export function TaskPage() {
             : `${task.length} da fare${scadute > 0 ? ` · ${scadute} in ritardo` : ''}`
         }
         azioni={
-          <>
-            <LinkButton
-              to="/archivio"
-              variante="secondario"
-              iconaSinistra={<Archive className="h-4 w-4" />}
-            >
-              <span className="hidden sm:inline">Archivio</span>
-            </LinkButton>
-            <Button
-              className="hidden sm:inline-flex"
-              iconaSinistra={<Plus className="h-4 w-4" />}
-              onClick={() => {
-                setInModifica(null)
-                setModuloAperto(true)
-              }}
-            >
-              Nuova task
-            </Button>
-          </>
+          <Button
+            className="hidden sm:inline-flex"
+            iconaSinistra={<Plus className="h-4 w-4" />}
+            onClick={() => {
+              setInModifica(null)
+              setModuloAperto(true)
+            }}
+          >
+            Nuova task
+          </Button>
         }
       />
+
+      <SottoNavTask attive={task.length} />
 
       {categorie.length > 0 && (
         <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 no-scrollbar sm:mx-0 sm:flex-wrap sm:px-0">

@@ -281,7 +281,70 @@ In **Impostazioni → I tuoi dati**:
 Le foto delle ricette non entrano nel file di backup (sarebbe enorme):
 restano nello spazio di archiviazione di Supabase.
 
+### Venti ricette per iniziare
+
+Se non vuoi partire da un ricettario vuoto, il file
+[`supabase/ricette-di-esempio.json`](supabase/ricette-di-esempio.json) contiene
+20 piatti facili e proteici (4 colazioni, 6 pranzi, 7 cene, 3 spuntini) già
+completi di ingredienti, procedimento e valori nutrizionali. Scaricalo e
+caricalo da **Impostazioni → I tuoi dati → Importa un backup**: si aggiungono
+alle tue, non sostituiscono niente. Le foto le metterai tu.
+
+I nomi degli ingredienti sono scritti in modo uniforme apposta (per esempio
+`Olio extravergine` in grammi ricorre in 14 ricette): così la lista della spesa
+somma le quantità invece di elencarti la stessa cosa quattro volte.
+
 ---
+
+## Sicurezza dei tuoi dati
+
+### Com'è protetta l'app
+
+Il sito è pubblico (chiunque può aprire l'indirizzo), ma **i dati no**. Ogni
+tabella del database ha la *Row Level Security* attiva: il database stesso
+rifiuta qualsiasi lettura o scrittura di righe che non appartengano
+all'utente collegato. Non è un controllo fatto dall'app — che si potrebbe
+aggirare — ma una regola applicata dal database a ogni richiesta.
+
+Le foto delle ricette stanno in uno spazio privato: vengono mostrate tramite
+link temporanei (un'ora) generati solo per chi possiede quelle foto.
+
+La chiave `anon` che finisce dentro il sito è pubblica per costruzione: serve
+solo a dire "sto parlando con questo progetto". Da sola non apre niente.
+**L'unica chiave da non condividere mai è la `service_role`**, che infatti non
+compare da nessuna parte in questo repository.
+
+### Verifica il tuo database quando vuoi
+
+Apri **SQL Editor** su Supabase ed esegui
+[`supabase/verifica-sicurezza.sql`](supabase/verifica-sicurezza.sql): stampa un
+referto con sette controlli e l'elenco delle tabelle. Deve essere tutto ✅.
+Rilancialo ogni volta che modifichi qualcosa su Supabase.
+
+### Le tre cose da fare per stare tranquillo
+
+1. **Chiudi le registrazioni** (la più importante). Il sito è raggiungibile da
+   chiunque, quindi chiunque può crearsi un account sul *tuo* progetto
+   Supabase. Non vedrebbe i tuoi dati, ma occuperebbe il tuo spazio gratuito.
+   Dopo aver creato il tuo account: **Authentication → Sign In / Providers →
+   Email** e spegni *Allow new users to sign up*. Da quel momento l'app è
+   soltanto tua.
+2. **Rafforza le password**: in **Authentication → Policies** (o *Passwords*)
+   alza la lunghezza minima a 8 caratteri e attiva *Leaked password
+   protection*, che rifiuta le password già finite in fughe di dati note.
+3. **Tieni stretti gli indirizzi di ritorno**: in **Authentication → URL
+   Configuration** devono comparire solo il tuo sito e, se lo usi,
+   `localhost`. Non mettere mai un `*` da solo: darebbe a un sito qualunque la
+   possibilità di intercettare il tuo accesso.
+
+### Buone abitudini
+
+- Su un computer condiviso premi **Esci** quando hai finito: la sessione resta
+  memorizzata nel browser finché non lo fai (uscendo, l'app cancella anche i
+  dati e le foto che aveva tenuto da parte).
+- Il file di backup che scarichi contiene tutto in chiaro: conservalo dove
+  conservi i documenti personali.
+- Su **Settings → Pages** lascia attivo *Enforce HTTPS*.
 
 ## Se qualcosa non funziona
 
@@ -291,8 +354,24 @@ esattamente `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`, poi vai in
 **Actions** e rilancia il workflow *Pubblica su GitHub Pages*: i segreti
 vengono inseriti quando il sito viene ricostruito, non dopo.
 
-**Il sito è tutto bianco oppure dice 404**
-Quasi sempre è il nome del repository sbagliato in `vite.config.ts`
+**Il sito è tutto bianco e la console del browser dice `main.tsx … 404`**
+GitHub Pages sta pubblicando i file del progetto così come sono, invece del
+sito compilato. Due cose da controllare, in quest'ordine:
+
+1. nel repository deve esistere `.github/workflows/deploy.yml`. È in una
+   cartella nascosta: se hai caricato i file trascinandoli dal computer, su
+   Mac il Finder non la mostra e resta indietro. Se manca, crealo con
+   **Add file → Create new file** scrivendo come nome esattamente
+   `.github/workflows/deploy.yml`;
+2. in **Settings → Pages**, alla voce *Source*, deve essere scelto
+   **GitHub Actions**. Se c'è “Deploy from a branch”, cambialo.
+
+Poi vai in **Actions**, lancia il workflow *Pubblica su GitHub Pages* e
+aspetta la spunta verde.
+
+**Il sito è tutto bianco oppure dice 404 su tutta la pagina**
+Se invece è proprio l'indirizzo a non esistere, di solito è il nome del
+repository sbagliato in `vite.config.ts`
 (vedi [Passo 5](#passo-5--controlla-il-nome-del-repository)). Deve
 corrispondere al nome che vedi nell'indirizzo di GitHub.
 

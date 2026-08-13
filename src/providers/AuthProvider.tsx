@@ -94,6 +94,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch {
           /* localStorage non disponibile: pazienza */
         }
+        // anche le foto delle ricette tenute dal service worker: su un
+        // computer condiviso non devono restare a disposizione di chi usa
+        // il browser dopo di te
+        if ('caches' in window) {
+          void caches
+            .keys()
+            .then((nomi) =>
+              Promise.all(
+                nomi
+                  .filter((nome) => nome.startsWith('benessere-immagini'))
+                  .map((nome) => caches.delete(nome)),
+              ),
+            )
+            .catch(() => undefined)
+        }
       }
     })
 

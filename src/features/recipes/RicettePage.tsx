@@ -7,6 +7,7 @@ import { Chip } from '@/components/ui/Controls'
 import { EmptyState, ErrorState } from '@/components/ui/Feedback'
 import { Input } from '@/components/ui/Field'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { SottoNavCibo } from '@/components/layout/SottoNavigazione'
 import { formatNumeroCompatto, plurale } from '@/lib/format'
 import { cn } from '@/lib/cn'
 import { MEAL_SLOTS } from '@/types'
@@ -77,6 +78,8 @@ export function RicettePage() {
           </LinkButton>
         }
       />
+
+      <SottoNavCibo />
 
       {/* ------------------------- ricerca e filtri ------------------------- */}
       <div className="space-y-3">

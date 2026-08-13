@@ -12,6 +12,11 @@ import { persister, queryClient } from './lib/queryClient'
 import { isSupabaseConfigured } from './lib/supabase'
 import './index.css'
 
+// Segnala alla rete di sicurezza in index.html che l'app e' partita davvero,
+// cosi' l'avviso "il sito non e' riuscito ad avviarsi" non compare.
+;(window as unknown as Record<string, unknown>).__benessereAvviato = true
+document.getElementById('avviso-caricamento')?.remove()
+
 // Service worker: l'app resta apribile anche senza connessione e si aggiorna
 // da sola quando pubblichi una nuova versione.
 registerSW({ immediate: true })

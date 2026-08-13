@@ -3,22 +3,51 @@ import { createClient } from '@supabase/supabase-js'
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 
+function indirizzoValido(valore: string | undefined): valore is string {
+  if (!valore) return false
+  try {
+    const analizzato = new URL(valore)
+    return analizzato.protocol === 'https:' || analizzato.protocol === 'http:'
+  } catch {
+    return false
+  }
+}
+
 /**
  * Vero solo quando le due variabili d'ambiente sono state impostate davvero.
  * Se sono mancanti (o sono ancora i valori di esempio) l'app mostra una
  * schermata che spiega come configurarle, invece di rompersi con un errore.
  */
-export const isSupabaseConfigured = Boolean(
-  url &&
-    anonKey &&
-    url.startsWith('http') &&
-    !url.includes('xxxxxxxx') &&
-    !anonKey.startsWith('incolla-qui'),
-)
+function leggiConfigurazione(): { url: string; anonKey: string } | null {
+  if (!indirizzoValido(url) || url.includes('xxxxxxxx')) return null
+  if (!anonKey || anonKey.startsWith('incolla-qui')) return null
+  return { url, anonKey }
+}
 
+const configurazione = leggiConfigurazione()
+export const isSupabaseConfigured = configurazione !== null
+
+if (!isSupabaseConfigured) {
+  // Un messaggio chiaro in console aiuta a capire quale dei due valori manca
+  // senza mai stamparne il contenuto.
+  console.warn(
+    '[Benessere] Configurazione Supabase non valida.',
+    '\n  VITE_SUPABASE_URL:',
+    url ? (indirizzoValido(url) ? 'ok' : 'non è un indirizzo valido (deve iniziare con https://)') : 'mancante',
+    '\n  VITE_SUPABASE_ANON_KEY:',
+    anonKey ? 'presente' : 'mancante',
+  )
+}
+
+/**
+ * Attenzione: createClient solleva un'eccezione se l'indirizzo e' malformato,
+ * e capitando all'avvio lascerebbe una pagina bianca. Per questo, quando la
+ * configurazione non e' valida, gli passiamo valori finti ma ben formati: cosi'
+ * l'app riesce comunque a mostrare la schermata che spiega cosa sistemare.
+ */
 export const supabase = createClient(
-  url || 'https://non-configurato.supabase.co',
-  anonKey || 'chiave-non-configurata',
+  configurazione?.url ?? 'https://non-configurato.supabase.co',
+  configurazione?.anonKey ?? 'chiave-non-configurata',
   {
     auth: {
       persistSession: true,

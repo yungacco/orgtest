@@ -15,6 +15,7 @@ import { Button, IconButton } from '@/components/ui/Button'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState, ErrorState } from '@/components/ui/Feedback'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { SottoNavCibo } from '@/components/layout/SottoNavigazione'
 import { useToast } from '@/components/ui/Toast'
 import { cn } from '@/lib/cn'
 import {
@@ -145,6 +146,8 @@ export function PianoPage() {
           </>
         }
       />
+
+      <SottoNavCibo />
 
       {/* --------------------- navigazione settimana --------------------- */}
       <div className="flex items-center justify-between gap-2 rounded-2xl border border-line bg-card p-2">
