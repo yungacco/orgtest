@@ -31,6 +31,16 @@ può leggerli, nemmeno chi conosce l'indirizzo del sito.
 
 ## Che cosa fa
 
+**La tua settimana**
+- un riepilogo, settimana per settimana, di tutto quello che hai registrato:
+  variazione di peso, minuti di allenamento, task completate, abitudini
+  spuntate, giorni di diario e pasti pianificati
+- il confronto con la settimana precedente, voce per voce, e una frase che
+  dice in una riga com'è andata
+- la striscia da lunedì a domenica con un pallino colorato per ogni cosa
+  fatta in quel giorno
+- si sfoglia all'indietro per rivedere le settimane passate
+
 **Peso e progressi**
 - inserimento rapido del peso, con data modificabile per registrare giorni passati
 - percentuale di massa grassa e nota, entrambe facoltative
@@ -272,14 +282,16 @@ senza connessione, mostra comunque gli ultimi dati che aveva sincronizzato.
 ## Come si usa
 
 - Sul **telefono** hai la barra in basso con Home, Salute, Cibo, Task e
-  Diario; le impostazioni sono nell'ingranaggio in alto a destra. Il pulsante
+  Diario; le impostazioni sono nell'ingranaggio in alto a destra. In cima
+  alla Home c'è la riga **La tua settimana**, che porta al riepilogo. Il pulsante
   verde **+** in basso inserisce al volo la cosa più utile della pagina in cui
   ti trovi (e dalla Home apre un menu con le azioni rapide).
 - Dentro ogni sezione, subito sotto al titolo, ci sono le **schede** con le
   pagine di quella sezione: *Peso · Allenamenti* dentro Salute,
   *Ricettario · Piano · Spesa* dentro Cibo, *Attive · Archivio* dentro Task.
 - Sul **computer** la barra laterale elenca tutte le pagine raggruppate per
-  argomento (Salute, Cibo, Organizzazione) e le pagine usano più colonne.
+  argomento (Salute, Cibo, Organizzazione), con *La tua settimana* subito
+  sotto alla Home, e le pagine usano più colonne.
 - Nelle liste (misurazioni del peso, archivio) puoi **trascinare una riga
   verso sinistra** per far comparire i pulsanti Modifica ed Elimina.
 - Le task attive si riordinano trascinando la maniglia a sinistra.
@@ -469,6 +481,7 @@ src/
 ├── features/            una cartella per funzionalità
 │   ├── auth/            accesso, registrazione, recupero password
 │   ├── dashboard/       la home con il riepilogo
+│   ├── weekly/          il riepilogo settimanale e i confronti
 │   ├── weight/          peso, grafico, statistiche
 │   ├── workouts/        allenamenti, statistiche e grafico settimanale
 │   ├── recipes/         ricettario e foto
@@ -495,10 +508,10 @@ Così cambiare il modo di salvare i dati non tocca l'interfaccia, e viceversa.
 
 ### I test
 
-`npm test` esegue 58 test (Vitest) sulla parte che sbaglierebbe in silenzio:
+`npm test` esegue 78 test (Vitest) sulla parte che sbaglierebbe in silenzio:
 medie e tendenza del peso, somme della lista della spesa, serie delle
-abitudini, ricorrenze delle task, generatore del menù e statistiche degli
-allenamenti. Sono funzioni pure, quindi girano in pochi secondi senza browser
+abitudini, ricorrenze delle task, generatore del menù, statistiche degli
+allenamenti e conti del riepilogo settimanale. Sono funzioni pure, quindi girano in pochi secondi senza browser
 né database — e la pubblicazione su GitHub li esegue prima di compilare: se un
 test fallisce, il sito non viene aggiornato con il codice rotto.
 
