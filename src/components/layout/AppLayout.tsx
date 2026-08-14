@@ -11,7 +11,7 @@ import { IconButton } from '@/components/ui/Button'
 import { useToast } from '@/components/ui/Toast'
 import { QuickAdd } from '@/features/quickadd/QuickAdd'
 import { StatoConnessione } from './StatoConnessione'
-import { GRUPPI_NAV, NAV_PRINCIPALE, VOCE_HOME, VOCE_IMPOSTAZIONI, voceAttiva } from './nav'
+import { GRUPPI_NAV, NAV_PRINCIPALE, VOCE_IMPOSTAZIONI, VOCI_IN_CIMA, voceAttiva } from './nav'
 import type { VoceNav } from './nav'
 import { Logo } from './Logo'
 
@@ -68,9 +68,11 @@ function Sidebar() {
 
       <nav aria-label="Sezioni principali" className="flex-1 overflow-y-auto px-3 pb-4">
         <ul className="space-y-1">
-          <li>
-            <VoceSidebar voce={VOCE_HOME} percorso={percorso} />
-          </li>
+          {VOCI_IN_CIMA.map((voce) => (
+            <li key={voce.percorso}>
+              <VoceSidebar voce={voce} percorso={percorso} />
+            </li>
+          ))}
         </ul>
 
         {GRUPPI_NAV.map((gruppo) => (

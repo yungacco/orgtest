@@ -2,6 +2,7 @@ import {
   Archive,
   BookOpen,
   CalendarDays,
+  CalendarRange,
   ChefHat,
   Dumbbell,
   HeartPulse,
@@ -106,8 +107,11 @@ export const GRUPPI_NAV: GruppoNav[] = [
   },
 ]
 
-/** Unica voce fuori dai gruppi: la home. */
-export const VOCE_HOME: VoceNav = { percorso: '/', etichetta: 'Home', icona: Home }
+/** Voci fuori dai gruppi, in cima alla barra laterale. */
+export const VOCI_IN_CIMA: VoceNav[] = [
+  { percorso: '/', etichetta: 'Home', icona: Home },
+  { percorso: '/settimana', etichetta: 'La tua settimana', icona: CalendarRange },
+]
 
 export const VOCE_IMPOSTAZIONI: VoceNav = {
   percorso: '/impostazioni',

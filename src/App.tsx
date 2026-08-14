@@ -10,6 +10,9 @@ import { useAuth } from '@/providers/AuthProvider'
 const HomePage = lazy(() =>
   import('@/features/dashboard/HomePage').then((m) => ({ default: m.HomePage })),
 )
+const SettimanaPage = lazy(() =>
+  import('@/features/weekly/SettimanaPage').then((m) => ({ default: m.SettimanaPage })),
+)
 const PesoPage = lazy(() =>
   import('@/features/weight/PesoPage').then((m) => ({ default: m.PesoPage })),
 )
@@ -83,6 +86,7 @@ export function App() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/settimana" element={<SettimanaPage />} />
           <Route path="/peso" element={<PesoPage />} />
           <Route path="/allenamenti" element={<AllenamentiPage />} />
           <Route path="/ricette" element={<RicettePage />} />

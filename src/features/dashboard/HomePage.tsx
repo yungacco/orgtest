@@ -27,6 +27,7 @@ import { useProfilo } from '@/features/settings/hooks'
 import { usePesi } from '@/features/weight/hooks'
 import { calcolaStatistiche } from '@/features/weight/statistiche'
 import { useAllenamenti } from '@/features/workouts/hooks'
+import { BannerSettimana } from '@/features/weekly/BannerSettimana'
 import {
   calcolaStatistiche as calcolaStatisticheAllenamenti,
   emojiAttivita,
@@ -190,6 +191,8 @@ export function HomePage() {
         titolo={nome ? `${saluto()}, ${nome}` : saluto()}
         sottotitolo={capitalizza(formatData(new Date(), 'EEEE d MMMM'))}
       />
+
+      <BannerSettimana />
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {/* Peso e allenamenti sono due numeri soli: sul telefono stanno
